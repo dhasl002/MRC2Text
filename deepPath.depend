@@ -1,0 +1,7 @@
+# depslib dependency file v1.0
+1510163533 source:c:\users\dhaslam\desktop\deeppath\main.cpp
+	<iostream>
+	<fstream>
+	<sstream>
+	<math.h>
+
