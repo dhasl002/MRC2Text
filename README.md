@@ -1,0 +1,3 @@
+# Deep Learning Training Data Generator
+
+Preparing training data is a very important process for convolutional neural networks. I have created a model that labels individual pixes in a 3D image found [here](https://github.com/dhasl002/Research-DeepLearning). Since the 3D images are not already labeled and are not in the correct format, I needed to create a program that could convert this information into usable training data. 
