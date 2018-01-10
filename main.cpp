@@ -2,6 +2,9 @@
 #include <fstream>
 #include <sstream>
 #include <math.h>
+#include <stdio.h>      /* printf, scanf, puts, NULL */
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>
 
 using namespace std;
 
@@ -13,11 +16,10 @@ int main()
     char tempCh = ' ';
     ///Find min and max of file first
     ifstream inFile;
-    inFile.open("C:\\Users\\dhaslam\\Downloads\\results\\post-processing\\New_test_samples\\4P1T_label.txt");
+    inFile.open("Z:\\New_test_samples\\2XS1_label.txt");
     while(!inFile.eof())
     {
         inFile >> xnum >> tempCh >> ynum >> tempCh >> znum >> tempCh >> temp >> tempCh >> temp;
-        //cout << x << y << z << temp << endl;
         if(xnum < minX)
             minX = xnum;
         if(ynum < minY)
@@ -35,9 +37,10 @@ int main()
     cout << "gotMin//Max" << endl;
     //157 101 95
     double *arr;
-    arr = (double *) malloc((maxX-minX+1)*(maxY-minY+1)*(maxZ-minZ+1)*sizeof(double));
+    arr = (double *) malloc((maxX-minX+2)*(maxY-minY+2)*(maxZ-minZ+2)*sizeof(double));
     double *label;
-    label = (double *) malloc((maxX-minX+1)*(maxY-minY+1)*(maxZ-minZ+1)*sizeof(double));
+    label = (double *) malloc((maxX-minX+2)*(maxY-minY+2)*(maxZ-minZ+2)*sizeof(double));
+    cout << (maxX-minX+1)*(maxY-minY+1)*(maxZ-minZ+1) << endl;
 
     double *x;
     x = (double *) malloc(7168*sizeof(double));
@@ -61,27 +64,55 @@ int main()
 
     //cout << (maxX-minX) << " " << (maxY-minY)  << " " << (maxZ-minZ) << endl;
     ///Now put data into data structure
-    inFile.open("C:\\Users\\dhaslam\\Downloads\\results\\post-processing\\New_test_samples\\4XDA_label.txt");
+    inFile.open("Z:\\New_test_samples\\2XS1_label.txt");
     while(!inFile.eof())
     {
         inFile >> xnum >> tempCh >> ynum >> tempCh >> znum >> tempCh >> temp >> tempCh >> temp2;
         //cout << (x-minX) << " " << (y-minY) << " " << (z-minZ) << endl;
-        arr[((xnum-minX)*(maxY-minY)*(maxZ-minZ))+((ynum-minY)*(maxZ-minZ))+(znum-minZ)] = temp;
-        label[((xnum-minX)*(maxY-minY)*(maxZ-minZ))+((ynum-minY)*(maxZ-minZ))+(znum-minZ)] = temp2;
+        arr[((xnum-minX)*(maxY-minY+1)*(maxZ-minZ+1))+((ynum-minY)*(maxZ-minZ+1))+(znum-minZ)] = temp;
+        label[((xnum-minX)*(maxY-minY+1)*(maxZ-minZ+1))+((ynum-minY)*(maxZ-minZ+1))+(znum-minZ)] = temp2;
     }
     inFile.close();
     cout << "created arrays" << endl;
 
-    string path = "C:\\Users\\dhaslam\\Downloads\\results\\post-processing\\New_test_samples\\4XDA\\4XDA-";
+    string path = "Z:\\New_test_samples\\2XS1\\2XS1-";
     int it = 0;
+    int i = 0;
+    int j = 0;
+    int k = 0;
+    int choice = 0;
+    bool noLabels = true;
+    for(int iter = 0; iter < 500; iter++)
+    {
+        noLabels = true;
+        //choose center of patch randomly
+        choice = rand() % 3;
+        if(choice == 0)
+        {
+            i = rand() % (maxX-minX-32) + (minX+16);
+            j = rand() % (maxY-minY-32) + (minY+16);
+            k = rand() % (maxZ-minZ-7) + (minZ+4);
+        }
+        else if(choice == 1)
+        {
+            i = rand() % (maxX-minX-32) + (minX+16);
+            j = rand() % (maxY-minY-7) + (minY+4);
+            k = rand() % (maxZ-minZ-16) + (minZ+16);
+        }
+        else if(choice == 2)
+        {
+            i = rand() % (maxX-minX-7) + (minX+4);
+            j = rand() % (maxY-minY-32) + (minY+16);
+            k = rand() % (maxZ-minZ-32) + (minZ+16);
+        }
 
-    for(int i = minX+16; i < maxX-16; i+=32)
-        for(int j = minY+16; j < maxY-16; j+=32)
-            for(int k = minZ+4; k < maxZ-3; k+=7)
-            {
+    //for(int i = minX+16; i < maxX-16; i+=32)
+    //    for(int j = minY+16; j < maxY-16; j+=32)
+    //        for(int k = minZ+4; k < maxZ-3; k+=7)
+    //        {
                 //cout << it << endl;
                 ///regular patch
-                path = "C:\\Users\\dhaslam\\Downloads\\results\\post-processing\\New_test_samples\\4XDA\\4XDA-";
+                path = "Z:\\New_test_samples\\2XS1\\2XS1-";
                 ofstream oFile;
                 stringstream ss;
                 ss << it;
@@ -90,11 +121,51 @@ int main()
                 path = path + str + ".txt";
                 oFile.open(path.c_str());
                 it++;
-                for(int l = -16; l < 16; l++)
-                    for(int m = -16; m < 16; m++)
-                        for(int n = -4; n < 3; n++)
-                            oFile << i+l << "," <<  j+m << "," << k+n << "," << arr[((i+l)*(maxY-minY)*(maxZ-minZ))+((j+m)*(maxZ-minZ))+(k+n)] << "," << label[((i+l)*(maxY-minY)*(maxZ-minZ))+((j+m)*(maxZ-minZ))+(k+n)] << endl;
+                int index = 0;
+                if(choice == 0)
+                {
+                    for(int l = -16; l < 16; l++)
+                        for(int m = -16; m < 16; m++)
+                            for(int n = -4; n < 3; n++)
+                            {
+                                index = ((i+l-minX)*(maxY-minY+1)*(maxZ-minZ+1))+((j+m-minY)*(maxZ-minZ+1))+(k+n-minZ);
+                                oFile << i+l << "," <<  j+m << "," << k+n << "," << arr[index] << "," << label[index] << endl;
+
+                                if(label[index] != 0)
+                                    noLabels = false;
+                            }
+                }
+                else if(choice == 1)
+                {
+                    for(int l = -16; l < 16; l++)
+                        for(int m = -4; m < 3; m++)
+                            for(int n = -16; n < 16; n++)
+                            {
+                                index = ((i+l-minX)*(maxY-minY+1)*(maxZ-minZ+1))+((j+m-minY)*(maxZ-minZ+1))+(k+n-minZ);
+                                oFile << i+l << "," <<  j+m << "," << k+n << "," << arr[index] << "," << label[index] << endl;
+                                if(label[index] != 0)
+                                    noLabels = false;
+                            }
+                }
+                else if(choice == 2)
+                {
+                    for(int l = -4; l < 3; l++)
+                        for(int m = -16; m < 16; m++)
+                            for(int n = -16; n < 16; n++)
+                            {
+                                index = ((i+l-minX)*(maxY-minY+1)*(maxZ-minZ+1))+((j+m-minY)*(maxZ-minZ+1))+(k+n-minZ);
+                                oFile << i+l << "," <<  j+m << "," << k+n << "," << arr[index] << "," << label[index] << endl;
+                                if(label[index] != 0)
+                                    noLabels = false;
+                            }
+                }
                 oFile.close();
+                if(noLabels)
+                {
+                    remove(path.c_str());
+                    it--;
+                    iter--;
+                }
 /*
                 ///rotated around x axis
                 path = "C:\\Users\\dhaslam\\Downloads\\results\\post-processing\\New_test_samples\\2xs1\\2XS1-";
